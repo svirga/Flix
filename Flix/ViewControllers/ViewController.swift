@@ -15,13 +15,11 @@ class ViewController: UIViewController, UITableViewDataSource
     var refreshControl: UIRefreshControl!
     var movies: [[String: Any]] = []
     @IBOutlet weak var movieTableView: UITableView!
-    @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
         // Start the activity indicator
-        activityIndicator.startAnimating()
         
         // Stop the activity indicator
         // Hides automatically if "Hides When Stopped" is enabled
@@ -35,7 +33,6 @@ class ViewController: UIViewController, UITableViewDataSource
         movieTableView.dataSource = self
         
         getNetworkRequest()
-        activityIndicator.stopAnimating()
     }
     
     override func didReceiveMemoryWarning()
