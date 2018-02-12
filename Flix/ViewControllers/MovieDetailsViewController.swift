@@ -8,7 +8,7 @@
 
 import UIKit
 
-enum MovieKeys {
+enum MovieKeys{
     static let title = "title"
     static let backdropImagePath = "backdrop_path"
     static let posterImagePath = "poster_path"
@@ -23,7 +23,7 @@ class MovieDetailsViewController: UIViewController
     @IBOutlet weak var releaseDateLabel: UILabel!
     @IBOutlet weak var overviewLabel: UILabel!
     
-    var movie: [String: Any]?
+    var movie: Movie?
     
     override func viewDidLoad()
     {
@@ -31,27 +31,16 @@ class MovieDetailsViewController: UIViewController
 
         if let movie = movie
         {
-            movieTitleLabel.text = movie[MovieKeys.title] as? String
-            releaseDateLabel.text = movie["release_date"] as? String
-            overviewLabel.text = movie["overview"] as? String
+            movieTitleLabel.text = movie.title
+            releaseDateLabel.text = movie.releaseDate
+            overviewLabel.text = movie.overview
             
-            let backdropImagePathString = movie[MovieKeys.backdropImagePath] as! String
-            let posterImagePathString = movie[MovieKeys.posterImagePath] as! String
-            let baseURL = "https://image.tmdb.org/t/p/w500"
+            movieBackdropImage.af_setImage(withURL: movie.backdropURL!)
+            movieBackdropImage.layer.zPosition = -5;
             
-            let backdropURL = URL(string: baseURL + backdropImagePathString)!
-            movieBackdropImage.af_setImage(withURL: backdropURL)
-            
-            let posterURL = URL(string: baseURL + posterImagePathString)!
-            moviePosterImage.af_setImage(withURL: posterURL)
-            
-            
-            
+            moviePosterImage.af_setImage(withURL: movie.posterURL!)
         }
     }
-
-   
-    
     
     override func didReceiveMemoryWarning()
     {

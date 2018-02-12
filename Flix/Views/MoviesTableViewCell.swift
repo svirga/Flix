@@ -15,6 +15,18 @@ class MoviesTableViewCell: UITableViewCell
     @IBOutlet weak var movieTitleLabel: UILabel!
     @IBOutlet weak var movieDescriptionLabel: UILabel!
     
+    //var movie: Movie!
+    
+    var movie: Movie?
+    {
+        didSet {
+            movieTitleLabel.text = movie?.title
+            movieDescriptionLabel.text = movie?.overview
+            posterImage.af_setImage(withURL: (movie?.posterURL)!)
+        }
+    }
+    
+    
     override func awakeFromNib()
     {
         super.awakeFromNib()
@@ -24,8 +36,6 @@ class MoviesTableViewCell: UITableViewCell
     override func setSelected(_ selected: Bool, animated: Bool)
     {
         super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
     }
 
 }

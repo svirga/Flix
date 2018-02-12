@@ -13,21 +13,17 @@ class ViewController: UIViewController, UITableViewDataSource
 {
     
     var refreshControl: UIRefreshControl!
-    var movies: [[String: Any]] = []
+    var movies: [Movie] = []
+    
+    
     @IBOutlet weak var movieTableView: UITableView!
     
     override func viewDidLoad()
     {
         super.viewDidLoad()
-        // Start the activity indicator
-        
-        // Stop the activity indicator
-        // Hides automatically if "Hides When Stopped" is enabled
-       
         
         refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(ViewController.didPullRefresh(_:)), for: .valueChanged)
-        
         movieTableView.insertSubview(refreshControl, at: 0)
         
         movieTableView.dataSource = self
@@ -51,18 +47,8 @@ class ViewController: UIViewController, UITableViewDataSource
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell
     {
         let cell = movieTableView.dequeueReusableCell(withIdentifier: "movieCell", for: indexPath) as! MoviesTableViewCell
-        
-        let movie = movies[indexPath.row]
-        let movieTitle = movie["title"] as! String
-        let overview = movie["overview"] as! String
-        cell.movieTitleLabel.text = movieTitle
-        cell.movieDescriptionLabel.text = overview
-        
-        let posterPathString = movie["poster_path"] as! String
-        let baseURLString = "https://image.tmdb.org/t/p/w500"
-        
-        let posterURL = URL(string: baseURLString + posterPathString)!
-        cell.posterImage.af_setImage(withURL: posterURL)
+ 
+        cell.movie = movies[indexPath.row]
         
         return cell
     }
@@ -70,37 +56,17 @@ class ViewController: UIViewController, UITableViewDataSource
     
     func getNetworkRequest()
     {
-        let url = URL(string: "https://api.themoviedb.org/3/movie/now_playing?api_key=a07e22bc18f5cb106bfe4cc1f83ad8ed")!
-        
-        let request = URLRequest(url: url, cachePolicy: .reloadIgnoringLocalCacheData, timeoutInterval: 10)
-        
-        let session = URLSession(configuration: .default, delegate: nil, delegateQueue: OperationQueue.main)
-        
-        let dataTask = session.dataTask(with: request) { (data, response, error) in
-            // This will run when the network request returns
-            
-            if let error = error
+        MovieApiManager().nowPlayingMovies { (movies: [Movie]?, error: Error?) in
+            if let movies = movies
             {
-                print(error.localizedDescription)
-            }
-            else if let data = data
-            {
-                let dataDictionary = try! JSONSerialization.jsonObject(with: data, options: []) as! [String: Any]
-                print(dataDictionary)
-                
-                let movies = dataDictionary["results"] as! [[String: Any]]
                 self.movies = movies
                 self.movieTableView.reloadData()
-                self.refreshControl.endRefreshing()
-                
-                /* for movie in movies
-                 {
-                 let title = movie["title"] as! String
-                 print(title)
-                 }*/
             }
         }
-        dataTask.resume()
+        
+        self.movieTableView.reloadData()
+        self.refreshControl.endRefreshing()
+        
     }
     
     @objc func didPullRefresh(_ refreshControl: UIRefreshControl)
@@ -111,13 +77,18 @@ class ViewController: UIViewController, UITableViewDataSource
     override func prepare(for segue: UIStoryboardSegue, sender: Any?)
     {
         let cell = sender as! UITableViewCell
-        let indexPath = movieTableView.indexPath(for: cell)
-        let movie = movies[(indexPath?.row)!]
-        let detailViewController = segue.destination as! MovieDetailsViewController
-        detailViewController.movie = movie
-        
-        
+        if let indexPath = movieTableView.indexPath(for: cell )
+        {
+            let movie = movies[indexPath.row]
+            let detailViewController = segue.destination as! MovieDetailsViewController
+            detailViewController.movie = movie
+        }
     }
     
+    
+    
+    
 }
+
+
 
